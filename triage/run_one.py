@@ -17,7 +17,8 @@ def main(scenario_id: str) -> None:
     scenario = scenarios[scenario_id]
 
     print(f"Model: {MODEL_ID}\nScenario: {scenario.id}\n")
-    result, calls = run_triage(scenario)
+    run = run_triage(scenario)
+    result, calls = run.result, run.calls
 
     print("Tools called:", [c["tool"] for c in calls])
     print("Result:")

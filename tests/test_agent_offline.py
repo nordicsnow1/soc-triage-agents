@@ -78,9 +78,10 @@ def test_agent_runs_tools_and_returns_validated_result():
         tool_step("get_related_events", {"actor": "dev-alice"}),
         tool_step("TriageResult", VALID_ANSWER),
     ])
-    result, calls = run_triage(TOR, model=model)
-    assert result.verdict is Verdict.TRUE_POSITIVE
-    assert [c["tool"] for c in calls] == ["check_ip_reputation", "get_related_events"]
+    run = run_triage(TOR, model=model)
+    assert run.result.verdict is Verdict.TRUE_POSITIVE
+    assert [c["tool"] for c in run.calls] == ["check_ip_reputation", "get_related_events"]
+    assert "totalTokens" in run.usage
 
 
 def test_agent_sends_system_prompt_and_all_tools_to_the_model():
@@ -94,8 +95,8 @@ def test_agent_sends_system_prompt_and_all_tools_to_the_model():
 def test_invalid_answer_is_sent_back_and_the_retry_is_used():
     bad = {**VALID_ANSWER, "verdict": "probably_fine"}
     model = ScriptedModel([tool_step("TriageResult", bad), tool_step("TriageResult", VALID_ANSWER)])
-    result, _ = run_triage(TOR, model=model)
-    assert result.verdict is Verdict.TRUE_POSITIVE
+    run = run_triage(TOR, model=model)
+    assert run.result.verdict is Verdict.TRUE_POSITIVE
     assert len(model.requests) >= 2  # the model got a second turn after the validation error
 
 

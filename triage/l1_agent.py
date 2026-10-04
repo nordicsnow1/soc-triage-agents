@@ -1,5 +1,6 @@
 """L1 triage agent: one alert in, one TriageResult out."""
 import json
+from dataclasses import dataclass
 
 from strands import Agent
 from strands.models import BedrockModel
@@ -46,8 +47,15 @@ def build_prompt(scenario: Scenario) -> str:
             f"<alert>\n{json.dumps(scenario.alert, indent=2)}\n</alert>")
 
 
-def run_triage(scenario: Scenario, model=None) -> tuple[TriageResult, list[dict]]:
-    """Triage one scenario. Returns the validated result and the recorded tool calls."""
+@dataclass
+class TriageRun:
+    result: TriageResult
+    calls: list[dict]  # recorded tool calls, in order
+    usage: dict        # token counts: inputTokens, outputTokens, totalTokens
+
+
+def run_triage(scenario: Scenario, model=None) -> TriageRun:
+    """Triage one scenario. Returns the validated result, the tool calls and the token usage."""
     calls: list[dict] = []
     agent = Agent(
         model=model or default_model(),
@@ -56,4 +64,4 @@ def run_triage(scenario: Scenario, model=None) -> tuple[TriageResult, list[dict]
         callback_handler=None,  # no streaming output to the console
     )
     result = agent(build_prompt(scenario), structured_output_model=TriageResult)
-    return result.structured_output, calls
+    return TriageRun(result.structured_output, calls, dict(result.metrics.accumulated_usage))
