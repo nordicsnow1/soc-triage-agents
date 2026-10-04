@@ -1,0 +1,108 @@
+{
+  "id": "02-log001-terraform-deploy",
+  "rule_id": "LOG-001",
+  "description": "StopLogging by the terraform-runner role during a planned trail update; logging restarts one minute later.",
+  "alert": {
+    "version": "0",
+    "id": "bbbbbbbb-0000-4000-8000-000000000201",
+    "detail-type": "AWS API Call via CloudTrail",
+    "source": "aws.cloudtrail",
+    "account": "123456789012",
+    "time": "2026-10-02T14:05:10Z",
+    "region": "us-east-1",
+    "resources": [],
+    "detail": {
+      "eventVersion": "1.08",
+      "userIdentity": {
+        "type": "AssumedRole",
+        "principalId": "AROAEXAMPLE:terraform-runner",
+        "arn": "arn:aws:sts::123456789012:assumed-role/terraform-runner/session",
+        "accountId": "123456789012",
+        "sessionContext": {
+          "sessionIssuer": {
+            "type": "Role",
+            "userName": "terraform-runner",
+            "arn": "arn:aws:iam::123456789012:role/terraform-runner"
+          }
+        }
+      },
+      "eventTime": "2026-10-02T14:05:10Z",
+      "eventSource": "cloudtrail.amazonaws.com",
+      "eventName": "StopLogging",
+      "awsRegion": "us-east-1",
+      "sourceIPAddress": "198.51.100.30",
+      "userAgent": "APN/1.0 HashiCorp/1.0 Terraform/1.11.4",
+      "requestParameters": {
+        "name": "main-trail"
+      },
+      "responseElements": null,
+      "eventID": "aaaaaaaa-0000-4000-8000-000000000201",
+      "eventType": "AwsApiCall",
+      "managementEvent": true,
+      "recipientAccountId": "123456789012"
+    }
+  },
+  "context": {
+    "actor_history": {
+      "actor": "terraform-runner",
+      "is_automation": true,
+      "usual_source_ips": [
+        "198.51.100.30"
+      ],
+      "usual_hours_utc": "00-24",
+      "typical_actions": [
+        "cloudtrail:*",
+        "iam:*",
+        "s3:*",
+        "events:*"
+      ],
+      "notes": "CI role that applies Terraform. Changes to the trail are expected during deployments."
+    },
+    "related_events": [
+      {
+        "eventID": "aaaaaaaa-0000-4000-8000-000000000200",
+        "eventTime": "2026-10-02T14:05:02Z",
+        "eventSource": "cloudtrail.amazonaws.com",
+        "eventName": "UpdateTrail",
+        "sourceIPAddress": "198.51.100.30",
+        "summary": "Trail settings updated"
+      },
+      {
+        "eventID": "aaaaaaaa-0000-4000-8000-000000000201",
+        "eventTime": "2026-10-02T14:05:10Z",
+        "eventSource": "cloudtrail.amazonaws.com",
+        "eventName": "StopLogging",
+        "sourceIPAddress": "198.51.100.30",
+        "summary": "The alert event"
+      },
+      {
+        "eventID": "aaaaaaaa-0000-4000-8000-000000000202",
+        "eventTime": "2026-10-02T14:06:15Z",
+        "eventSource": "cloudtrail.amazonaws.com",
+        "eventName": "StartLogging",
+        "sourceIPAddress": "198.51.100.30",
+        "summary": "Logging restarted"
+      }
+    ],
+    "ip_reputation": {
+      "198.51.100.30": {
+        "abuse_score": 0,
+        "country": "DE",
+        "isp": "Example CI provider",
+        "is_tor_exit": false
+      }
+    }
+  },
+  "expected": {
+    "verdict": "benign",
+    "must_cite": [
+      "aaaaaaaa-0000-4000-8000-000000000201",
+      "aaaaaaaa-0000-4000-8000-000000000202"
+    ],
+    "must_call": [
+      "get_actor_history",
+      "get_related_events"
+    ],
+    "rationale": "Known automation from its usual IP; logging restarted within about a minute."
+  }
+}

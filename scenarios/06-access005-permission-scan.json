@@ -1,0 +1,122 @@
+{
+  "id": "06-access005-permission-scan",
+  "rule_id": "ACCESS-005",
+  "description": "svc-reporting gets AccessDenied on five different services within two minutes from a hosting IP.",
+  "alert": {
+    "version": "0",
+    "id": "bbbbbbbb-0000-4000-8000-000000000602",
+    "detail-type": "AWS API Call via CloudTrail",
+    "source": "aws.ec2",
+    "account": "123456789012",
+    "time": "2026-10-02T09:01:30Z",
+    "region": "us-east-1",
+    "resources": [],
+    "detail": {
+      "eventVersion": "1.08",
+      "userIdentity": {
+        "type": "IAMUser",
+        "principalId": "AIDAEXAMPLESVCREPORTING",
+        "arn": "arn:aws:iam::123456789012:user/svc-reporting",
+        "accountId": "123456789012",
+        "userName": "svc-reporting"
+      },
+      "eventTime": "2026-10-02T09:01:30Z",
+      "eventSource": "ec2.amazonaws.com",
+      "eventName": "DescribeInstances",
+      "awsRegion": "us-east-1",
+      "sourceIPAddress": "203.0.113.90",
+      "userAgent": "Boto3/1.35.0 Python/3.12",
+      "requestParameters": null,
+      "responseElements": null,
+      "eventID": "aaaaaaaa-0000-4000-8000-000000000602",
+      "eventType": "AwsApiCall",
+      "managementEvent": true,
+      "recipientAccountId": "123456789012",
+      "errorCode": "Client.UnauthorizedOperation",
+      "errorMessage": "You are not authorized to perform this operation."
+    }
+  },
+  "context": {
+    "actor_history": {
+      "actor": "svc-reporting",
+      "is_automation": true,
+      "usual_source_ips": [
+        "198.51.100.40"
+      ],
+      "usual_hours_utc": "06-07",
+      "typical_actions": [
+        "s3:GetObject on reports-bucket"
+      ],
+      "notes": "Service user for a nightly report. Uses only one S3 bucket."
+    },
+    "related_events": [
+      {
+        "eventID": "aaaaaaaa-0000-4000-8000-000000000600",
+        "eventTime": "2026-10-02T09:01:10Z",
+        "eventSource": "iam.amazonaws.com",
+        "eventName": "ListUsers",
+        "sourceIPAddress": "203.0.113.90",
+        "summary": "Denied",
+        "errorCode": "AccessDenied"
+      },
+      {
+        "eventID": "aaaaaaaa-0000-4000-8000-000000000601",
+        "eventTime": "2026-10-02T09:01:20Z",
+        "eventSource": "s3.amazonaws.com",
+        "eventName": "ListBuckets",
+        "sourceIPAddress": "203.0.113.90",
+        "summary": "Denied",
+        "errorCode": "AccessDenied"
+      },
+      {
+        "eventID": "aaaaaaaa-0000-4000-8000-000000000602",
+        "eventTime": "2026-10-02T09:01:30Z",
+        "eventSource": "ec2.amazonaws.com",
+        "eventName": "DescribeInstances",
+        "sourceIPAddress": "203.0.113.90",
+        "summary": "Denied",
+        "errorCode": "Client.UnauthorizedOperation"
+      },
+      {
+        "eventID": "aaaaaaaa-0000-4000-8000-000000000603",
+        "eventTime": "2026-10-02T09:01:40Z",
+        "eventSource": "kms.amazonaws.com",
+        "eventName": "ListKeys",
+        "sourceIPAddress": "203.0.113.90",
+        "summary": "Denied",
+        "errorCode": "AccessDenied"
+      },
+      {
+        "eventID": "aaaaaaaa-0000-4000-8000-000000000604",
+        "eventTime": "2026-10-02T09:01:50Z",
+        "eventSource": "secretsmanager.amazonaws.com",
+        "eventName": "ListSecrets",
+        "sourceIPAddress": "203.0.113.90",
+        "summary": "Denied",
+        "errorCode": "AccessDenied"
+      }
+    ],
+    "ip_reputation": {
+      "203.0.113.90": {
+        "abuse_score": 60,
+        "country": "US",
+        "isp": "Example cloud hosting",
+        "is_tor_exit": false
+      }
+    }
+  },
+  "expected": {
+    "verdict": "true_positive",
+    "must_cite": [
+      "aaaaaaaa-0000-4000-8000-000000000600",
+      "aaaaaaaa-0000-4000-8000-000000000601",
+      "aaaaaaaa-0000-4000-8000-000000000602"
+    ],
+    "must_call": [
+      "get_actor_history",
+      "check_ip_reputation",
+      "get_related_events"
+    ],
+    "rationale": "Enumeration pattern: a narrow service user probing many services from a new hosting IP. Key likely leaked."
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "id": "09-iam001-least-privilege-policy",
+  "rule_id": "IAM-001",
+  "description": "terraform-runner adds a read-only S3 policy for one bucket to a Lambda role.",
+  "alert": {
+    "version": "0",
+    "id": "bbbbbbbb-0000-4000-8000-000000000901",
+    "detail-type": "AWS API Call via CloudTrail",
+    "source": "aws.iam",
+    "account": "123456789012",
+    "time": "2026-10-02T14:10:00Z",
+    "region": "us-east-1",
+    "resources": [],
+    "detail": {
+      "eventVersion": "1.08",
+      "userIdentity": {
+        "type": "AssumedRole",
+        "principalId": "AROAEXAMPLE:terraform-runner",
+        "arn": "arn:aws:sts::123456789012:assumed-role/terraform-runner/session",
+        "accountId": "123456789012",
+        "sessionContext": {
+          "sessionIssuer": {
+            "type": "Role",
+            "userName": "terraform-runner",
+            "arn": "arn:aws:iam::123456789012:role/terraform-runner"
+          }
+        }
+      },
+      "eventTime": "2026-10-02T14:10:00Z",
+      "eventSource": "iam.amazonaws.com",
+      "eventName": "PutRolePolicy",
+      "awsRegion": "us-east-1",
+      "sourceIPAddress": "198.51.100.30",
+      "userAgent": "APN/1.0 HashiCorp/1.0 Terraform/1.11.4",
+      "requestParameters": {
+        "roleName": "report-lambda-role",
+        "policyName": "read-reports",
+        "policyDocument": "{\"Version\": \"2012-10-17\", \"Statement\": [{\"Effect\": \"Allow\", \"Action\": \"s3:GetObject\", \"Resource\": \"arn:aws:s3:::reports-bucket/*\"}]}"
+      },
+      "responseElements": null,
+      "eventID": "aaaaaaaa-0000-4000-8000-000000000901",
+      "eventType": "AwsApiCall",
+      "managementEvent": true,
+      "recipientAccountId": "123456789012"
+    }
+  },
+  "context": {
+    "actor_history": {
+      "actor": "terraform-runner",
+      "is_automation": true,
+      "usual_source_ips": [
+        "198.51.100.30"
+      ],
+      "usual_hours_utc": "00-24",
+      "typical_actions": [
+        "iam:*",
+        "cloudtrail:*",
+        "s3:*"
+      ],
+      "notes": "CI role that applies Terraform."
+    },
+    "related_events": [
+      {
+        "eventID": "aaaaaaaa-0000-4000-8000-000000000901",
+        "eventTime": "2026-10-02T14:10:00Z",
+        "eventSource": "iam.amazonaws.com",
+        "eventName": "PutRolePolicy",
+        "sourceIPAddress": "198.51.100.30",
+        "summary": "The alert event"
+      }
+    ],
+    "ip_reputation": {
+      "198.51.100.30": {
+        "abuse_score": 0,
+        "country": "DE",
+        "isp": "Example CI provider",
+        "is_tor_exit": false
+      }
+    }
+  },
+  "expected": {
+    "verdict": "false_positive",
+    "must_cite": [
+      "aaaaaaaa-0000-4000-8000-000000000901"
+    ],
+    "must_call": [
+      "get_rule_playbook"
+    ],
+    "rationale": "Not self-escalation and no wildcard: the rule matches every inline policy. Tune the rule."
+  }
+}

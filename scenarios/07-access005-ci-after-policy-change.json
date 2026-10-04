@@ -1,0 +1,116 @@
+{
+  "id": "07-access005-ci-after-policy-change",
+  "rule_id": "ACCESS-005",
+  "description": "github-ci-deploy gets AccessDenied on UpdateFunctionCode two minutes after an admin detached its Lambda policy.",
+  "alert": {
+    "version": "0",
+    "id": "bbbbbbbb-0000-4000-8000-000000000702",
+    "detail-type": "AWS API Call via CloudTrail",
+    "source": "aws.lambda",
+    "account": "123456789012",
+    "time": "2026-10-02T10:00:05Z",
+    "region": "us-east-1",
+    "resources": [],
+    "detail": {
+      "eventVersion": "1.08",
+      "userIdentity": {
+        "type": "AssumedRole",
+        "principalId": "AROAEXAMPLE:github-ci-deploy",
+        "arn": "arn:aws:sts::123456789012:assumed-role/github-ci-deploy/session",
+        "accountId": "123456789012",
+        "sessionContext": {
+          "sessionIssuer": {
+            "type": "Role",
+            "userName": "github-ci-deploy",
+            "arn": "arn:aws:iam::123456789012:role/github-ci-deploy"
+          }
+        }
+      },
+      "eventTime": "2026-10-02T10:00:05Z",
+      "eventSource": "lambda.amazonaws.com",
+      "eventName": "UpdateFunctionCode20150331v2",
+      "awsRegion": "us-east-1",
+      "sourceIPAddress": "198.51.100.30",
+      "userAgent": "aws-cli/2.17.0",
+      "requestParameters": {
+        "functionName": "report-api"
+      },
+      "responseElements": null,
+      "eventID": "aaaaaaaa-0000-4000-8000-000000000702",
+      "eventType": "AwsApiCall",
+      "managementEvent": true,
+      "recipientAccountId": "123456789012",
+      "errorCode": "AccessDenied",
+      "errorMessage": "User is not authorized to perform: lambda:UpdateFunctionCode"
+    }
+  },
+  "context": {
+    "actor_history": {
+      "actor": "github-ci-deploy",
+      "is_automation": true,
+      "usual_source_ips": [
+        "198.51.100.30"
+      ],
+      "usual_hours_utc": "00-24",
+      "typical_actions": [
+        "lambda:UpdateFunctionCode",
+        "s3:PutObject"
+      ],
+      "notes": "Deploys the report-api Lambda on every merge."
+    },
+    "related_events": [
+      {
+        "eventID": "aaaaaaaa-0000-4000-8000-000000000700",
+        "eventTime": "2026-10-02T09:58:00Z",
+        "eventSource": "iam.amazonaws.com",
+        "eventName": "DetachRolePolicy",
+        "sourceIPAddress": "198.51.100.20",
+        "summary": "ops-bob detached LambdaDeployPolicy from github-ci-deploy (ticket CHG-1042: tighten CI permissions)"
+      },
+      {
+        "eventID": "aaaaaaaa-0000-4000-8000-000000000701",
+        "eventTime": "2026-10-02T10:00:01Z",
+        "eventSource": "lambda.amazonaws.com",
+        "eventName": "UpdateFunctionCode20150331v2",
+        "sourceIPAddress": "198.51.100.30",
+        "summary": "Denied",
+        "errorCode": "AccessDenied"
+      },
+      {
+        "eventID": "aaaaaaaa-0000-4000-8000-000000000702",
+        "eventTime": "2026-10-02T10:00:05Z",
+        "eventSource": "lambda.amazonaws.com",
+        "eventName": "UpdateFunctionCode20150331v2",
+        "sourceIPAddress": "198.51.100.30",
+        "summary": "Denied (retry)",
+        "errorCode": "AccessDenied"
+      }
+    ],
+    "ip_reputation": {
+      "198.51.100.30": {
+        "abuse_score": 0,
+        "country": "DE",
+        "isp": "Example CI provider",
+        "is_tor_exit": false
+      },
+      "198.51.100.20": {
+        "abuse_score": 0,
+        "country": "DE",
+        "isp": "Residential broadband",
+        "is_tor_exit": false
+      }
+    }
+  },
+  "expected": {
+    "verdict": "benign",
+    "must_cite": [
+      "aaaaaaaa-0000-4000-8000-000000000700",
+      "aaaaaaaa-0000-4000-8000-000000000702"
+    ],
+    "must_call": [
+      "get_actor_history",
+      "get_related_events"
+    ],
+    "rationale": "Expected failure of normal CI work after a documented permission change. Fix the CI policy."
+  }
+}

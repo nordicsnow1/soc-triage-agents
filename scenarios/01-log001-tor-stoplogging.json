@@ -1,0 +1,102 @@
+{
+  "id": "01-log001-tor-stoplogging",
+  "rule_id": "LOG-001",
+  "description": "StopLogging at 02:14 by dev-alice from a Tor exit IP, followed by a new access key for another user.",
+  "alert": {
+    "version": "0",
+    "id": "bbbbbbbb-0000-4000-8000-000000000101",
+    "detail-type": "AWS API Call via CloudTrail",
+    "source": "aws.cloudtrail",
+    "account": "123456789012",
+    "time": "2026-10-02T02:14:05Z",
+    "region": "us-east-1",
+    "resources": [],
+    "detail": {
+      "eventVersion": "1.08",
+      "userIdentity": {
+        "type": "IAMUser",
+        "principalId": "AIDAEXAMPLEDEVALICE",
+        "arn": "arn:aws:iam::123456789012:user/dev-alice",
+        "accountId": "123456789012",
+        "userName": "dev-alice"
+      },
+      "eventTime": "2026-10-02T02:14:05Z",
+      "eventSource": "cloudtrail.amazonaws.com",
+      "eventName": "StopLogging",
+      "awsRegion": "us-east-1",
+      "sourceIPAddress": "203.0.113.66",
+      "userAgent": "aws-cli/2.17.0",
+      "requestParameters": {
+        "name": "main-trail"
+      },
+      "responseElements": null,
+      "eventID": "aaaaaaaa-0000-4000-8000-000000000101",
+      "eventType": "AwsApiCall",
+      "managementEvent": true,
+      "recipientAccountId": "123456789012"
+    }
+  },
+  "context": {
+    "actor_history": {
+      "actor": "dev-alice",
+      "is_automation": false,
+      "usual_source_ips": [
+        "198.51.100.20"
+      ],
+      "usual_hours_utc": "08-18",
+      "typical_actions": [
+        "s3:GetObject",
+        "s3:PutObject",
+        "lambda:InvokeFunction"
+      ],
+      "notes": "Developer. Has never called CloudTrail or IAM write APIs."
+    },
+    "related_events": [
+      {
+        "eventID": "aaaaaaaa-0000-4000-8000-000000000100",
+        "eventTime": "2026-10-02T02:12:40Z",
+        "eventSource": "sts.amazonaws.com",
+        "eventName": "GetCallerIdentity",
+        "sourceIPAddress": "203.0.113.66",
+        "summary": "Checks which identity the credentials belong to"
+      },
+      {
+        "eventID": "aaaaaaaa-0000-4000-8000-000000000101",
+        "eventTime": "2026-10-02T02:14:05Z",
+        "eventSource": "cloudtrail.amazonaws.com",
+        "eventName": "StopLogging",
+        "sourceIPAddress": "203.0.113.66",
+        "summary": "The alert event"
+      },
+      {
+        "eventID": "aaaaaaaa-0000-4000-8000-000000000102",
+        "eventTime": "2026-10-02T02:15:30Z",
+        "eventSource": "iam.amazonaws.com",
+        "eventName": "CreateAccessKey",
+        "sourceIPAddress": "203.0.113.66",
+        "summary": "Access key created for user ops-bob"
+      }
+    ],
+    "ip_reputation": {
+      "203.0.113.66": {
+        "abuse_score": 98,
+        "country": "NL",
+        "isp": "Tor exit node",
+        "is_tor_exit": true
+      }
+    }
+  },
+  "expected": {
+    "verdict": "true_positive",
+    "must_cite": [
+      "aaaaaaaa-0000-4000-8000-000000000101",
+      "aaaaaaaa-0000-4000-8000-000000000102"
+    ],
+    "must_call": [
+      "get_actor_history",
+      "check_ip_reputation",
+      "get_related_events"
+    ],
+    "rationale": "Unusual actor and time, Tor IP, defense evasion followed by persistence."
+  }
+}

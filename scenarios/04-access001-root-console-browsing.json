@@ -1,0 +1,106 @@
+{
+  "id": "04-access001-root-console-browsing",
+  "rule_id": "ACCESS-001",
+  "description": "Root user browsing EventBridge in the console from the owner's usual IP after an MFA login (real alert, anonymized).",
+  "alert": {
+    "version": "0",
+    "id": "bbbbbbbb-0000-4000-8000-000000000401",
+    "detail-type": "AWS API Call via CloudTrail",
+    "source": "aws.events",
+    "account": "123456789012",
+    "time": "2026-10-03T21:43:12Z",
+    "region": "us-east-1",
+    "resources": [],
+    "detail": {
+      "eventVersion": "1.08",
+      "userIdentity": {
+        "type": "Root",
+        "principalId": "123456789012",
+        "arn": "arn:aws:iam::123456789012:root",
+        "accountId": "123456789012"
+      },
+      "eventTime": "2026-10-03T21:43:12Z",
+      "eventSource": "events.amazonaws.com",
+      "eventName": "ListRules",
+      "awsRegion": "us-east-1",
+      "sourceIPAddress": "198.51.100.20",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+      "requestParameters": null,
+      "responseElements": null,
+      "eventID": "aaaaaaaa-0000-4000-8000-000000000401",
+      "eventType": "AwsApiCall",
+      "managementEvent": true,
+      "recipientAccountId": "123456789012"
+    }
+  },
+  "context": {
+    "actor_history": {
+      "actor": "root",
+      "is_automation": false,
+      "usual_source_ips": [
+        "198.51.100.20"
+      ],
+      "usual_hours_utc": "18-23",
+      "typical_actions": [
+        "console browsing",
+        "billing:*",
+        "sns:*"
+      ],
+      "notes": "Account owner uses root in the console in the evening. Always with MFA."
+    },
+    "related_events": [
+      {
+        "eventID": "aaaaaaaa-0000-4000-8000-000000000400",
+        "eventTime": "2026-10-03T21:30:05Z",
+        "eventSource": "signin.amazonaws.com",
+        "eventName": "ConsoleLogin",
+        "sourceIPAddress": "198.51.100.20",
+        "summary": "Root console login, MFAUsed=Yes"
+      },
+      {
+        "eventID": "aaaaaaaa-0000-4000-8000-000000000401",
+        "eventTime": "2026-10-03T21:43:12Z",
+        "eventSource": "events.amazonaws.com",
+        "eventName": "ListRules",
+        "sourceIPAddress": "198.51.100.20",
+        "summary": "The alert event"
+      },
+      {
+        "eventID": "aaaaaaaa-0000-4000-8000-000000000402",
+        "eventTime": "2026-10-03T21:43:20Z",
+        "eventSource": "events.amazonaws.com",
+        "eventName": "DescribeRule",
+        "sourceIPAddress": "198.51.100.20",
+        "summary": "Read-only"
+      },
+      {
+        "eventID": "aaaaaaaa-0000-4000-8000-000000000403",
+        "eventTime": "2026-10-03T21:44:02Z",
+        "eventSource": "events.amazonaws.com",
+        "eventName": "ListTargetsByRule",
+        "sourceIPAddress": "198.51.100.20",
+        "summary": "Read-only"
+      }
+    ],
+    "ip_reputation": {
+      "198.51.100.20": {
+        "abuse_score": 0,
+        "country": "DE",
+        "isp": "Residential broadband",
+        "is_tor_exit": false
+      }
+    }
+  },
+  "expected": {
+    "verdict": "benign",
+    "must_cite": [
+      "aaaaaaaa-0000-4000-8000-000000000400",
+      "aaaaaaaa-0000-4000-8000-000000000401"
+    ],
+    "must_call": [
+      "get_actor_history",
+      "get_related_events"
+    ],
+    "rationale": "Read-only console activity from the usual IP after an MFA login. Recommend not using root daily."
+  }
+}

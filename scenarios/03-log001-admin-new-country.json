@@ -1,0 +1,85 @@
+{
+  "id": "03-log001-admin-new-country",
+  "rule_id": "LOG-001",
+  "description": "StopLogging by admin ops-bob during work hours from an IP in a country he never used; no other activity.",
+  "alert": {
+    "version": "0",
+    "id": "bbbbbbbb-0000-4000-8000-000000000301",
+    "detail-type": "AWS API Call via CloudTrail",
+    "source": "aws.cloudtrail",
+    "account": "123456789012",
+    "time": "2026-10-02T11:30:00Z",
+    "region": "us-east-1",
+    "resources": [],
+    "detail": {
+      "eventVersion": "1.08",
+      "userIdentity": {
+        "type": "IAMUser",
+        "principalId": "AIDAEXAMPLEOPSBOB",
+        "arn": "arn:aws:iam::123456789012:user/ops-bob",
+        "accountId": "123456789012",
+        "userName": "ops-bob"
+      },
+      "eventTime": "2026-10-02T11:30:00Z",
+      "eventSource": "cloudtrail.amazonaws.com",
+      "eventName": "StopLogging",
+      "awsRegion": "us-east-1",
+      "sourceIPAddress": "192.0.2.44",
+      "userAgent": "console.amazonaws.com",
+      "requestParameters": {
+        "name": "main-trail"
+      },
+      "responseElements": null,
+      "eventID": "aaaaaaaa-0000-4000-8000-000000000301",
+      "eventType": "AwsApiCall",
+      "managementEvent": true,
+      "recipientAccountId": "123456789012"
+    }
+  },
+  "context": {
+    "actor_history": {
+      "actor": "ops-bob",
+      "is_automation": false,
+      "usual_source_ips": [
+        "198.51.100.20"
+      ],
+      "usual_hours_utc": "07-17",
+      "typical_actions": [
+        "cloudtrail:UpdateTrail",
+        "iam:ListUsers",
+        "ec2:Describe*"
+      ],
+      "notes": "Administrator based in DE. Sometimes changes trail settings."
+    },
+    "related_events": [
+      {
+        "eventID": "aaaaaaaa-0000-4000-8000-000000000301",
+        "eventTime": "2026-10-02T11:30:00Z",
+        "eventSource": "cloudtrail.amazonaws.com",
+        "eventName": "StopLogging",
+        "sourceIPAddress": "192.0.2.44",
+        "summary": "The alert event"
+      }
+    ],
+    "ip_reputation": {
+      "192.0.2.44": {
+        "abuse_score": 0,
+        "country": "BR",
+        "isp": "Residential broadband",
+        "is_tor_exit": false
+      }
+    }
+  },
+  "expected": {
+    "verdict": "escalate",
+    "must_cite": [
+      "aaaaaaaa-0000-4000-8000-000000000301"
+    ],
+    "must_call": [
+      "get_actor_history",
+      "check_ip_reputation",
+      "get_related_events"
+    ],
+    "rationale": "Authorized admin and clean IP, but a new country and no restart; cannot confirm without asking the user."
+  }
+}

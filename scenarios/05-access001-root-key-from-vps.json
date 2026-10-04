@@ -1,0 +1,90 @@
+{
+  "id": "05-access001-root-key-from-vps",
+  "rule_id": "ACCESS-001",
+  "description": "Root creates an access key at 03:02 from a hosting-provider IP, after a console login without MFA.",
+  "alert": {
+    "version": "0",
+    "id": "bbbbbbbb-0000-4000-8000-000000000501",
+    "detail-type": "AWS API Call via CloudTrail",
+    "source": "aws.iam",
+    "account": "123456789012",
+    "time": "2026-10-02T03:02:10Z",
+    "region": "us-east-1",
+    "resources": [],
+    "detail": {
+      "eventVersion": "1.08",
+      "userIdentity": {
+        "type": "Root",
+        "principalId": "123456789012",
+        "arn": "arn:aws:iam::123456789012:root",
+        "accountId": "123456789012"
+      },
+      "eventTime": "2026-10-02T03:02:10Z",
+      "eventSource": "iam.amazonaws.com",
+      "eventName": "CreateAccessKey",
+      "awsRegion": "us-east-1",
+      "sourceIPAddress": "203.0.113.77",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64)",
+      "requestParameters": null,
+      "responseElements": null,
+      "eventID": "aaaaaaaa-0000-4000-8000-000000000501",
+      "eventType": "AwsApiCall",
+      "managementEvent": true,
+      "recipientAccountId": "123456789012"
+    }
+  },
+  "context": {
+    "actor_history": {
+      "actor": "root",
+      "is_automation": false,
+      "usual_source_ips": [
+        "198.51.100.20"
+      ],
+      "usual_hours_utc": "18-23",
+      "typical_actions": [
+        "console browsing",
+        "billing:*"
+      ],
+      "notes": "Root has never created access keys. Root normally logs in with MFA."
+    },
+    "related_events": [
+      {
+        "eventID": "aaaaaaaa-0000-4000-8000-000000000500",
+        "eventTime": "2026-10-02T03:00:30Z",
+        "eventSource": "signin.amazonaws.com",
+        "eventName": "ConsoleLogin",
+        "sourceIPAddress": "203.0.113.77",
+        "summary": "Root console login, MFAUsed=No"
+      },
+      {
+        "eventID": "aaaaaaaa-0000-4000-8000-000000000501",
+        "eventTime": "2026-10-02T03:02:10Z",
+        "eventSource": "iam.amazonaws.com",
+        "eventName": "CreateAccessKey",
+        "sourceIPAddress": "203.0.113.77",
+        "summary": "The alert event"
+      }
+    ],
+    "ip_reputation": {
+      "203.0.113.77": {
+        "abuse_score": 85,
+        "country": "RU",
+        "isp": "Example VPS hosting",
+        "is_tor_exit": false
+      }
+    }
+  },
+  "expected": {
+    "verdict": "true_positive",
+    "must_cite": [
+      "aaaaaaaa-0000-4000-8000-000000000500",
+      "aaaaaaaa-0000-4000-8000-000000000501"
+    ],
+    "must_call": [
+      "get_actor_history",
+      "check_ip_reputation",
+      "get_related_events"
+    ],
+    "rationale": "Root login without MFA from a bad-reputation IP at an unusual hour, then a persistent credential."
+  }
+}
