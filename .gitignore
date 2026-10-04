@@ -1,0 +1,7 @@
+__pycache__/
+.pytest_cache/
+.venv/
+venv/
+.env
+# Real alerts and logs can contain account IDs, IPs and user names
+data/private/
